@@ -75,6 +75,11 @@
             list-style-type: disc;
             padding-left: 1.5rem;
         }
+        #ai-tip li {
+            margin-bottom: 0.5rem;
+        }
+        .modal-overlay { transition: opacity 0.3s ease; }
+        .modal-content { transition: transform 0.3s ease, opacity 0.3s ease; }
     </style>
 </head>
 <body class="bg-gradient-custom text-gray-800">
@@ -103,7 +108,11 @@
                         </div>
                     </div>
                     
-                    <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">2. 나의 Big 5 점수 입력하기</h2>
+                    <div class="flex justify-center items-center gap-2 mb-6">
+                        <h2 class="text-2xl font-bold text-center text-gray-800">2. 나의 Big 5 점수 입력하기</h2>
+                        <button id="help-btn" class="bg-gray-200 text-gray-600 rounded-full w-7 h-7 flex items-center justify-center font-bold text-md hover:bg-gray-300 transition-colors">?</button>
+                    </div>
+
                     <div class="space-y-6">
                         <div id="trait-sliders"></div>
                     </div>
@@ -115,34 +124,61 @@
                 </div>
 
                 <div id="result-section" class="hidden mt-10">
-                    <h2 id="result-title" class="text-2xl font-bold mb-6 text-center"></h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                        <div class="w-full h-full flex justify-center items-center p-4">
-                            <canvas id="result-chart"></canvas>
+                    <div id="analysis-content">
+                        <h2 id="result-title" class="text-2xl font-bold mb-6 text-center"></h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                            <div class="w-full h-full flex justify-center items-center p-4">
+                                <canvas id="result-chart"></canvas>
+                            </div>
+                            <div id="keyword-section" class="flex flex-wrap gap-3 justify-center items-center"></div>
                         </div>
-                        <div id="keyword-section" class="flex flex-wrap gap-3 justify-center items-center"></div>
+                        <div id="interpretation-section" class="mt-10 space-y-6"></div>
                     </div>
-                    <div id="interpretation-section" class="mt-10 space-y-6"></div>
                     
-                    <div id="ai-section" class="hidden mt-12">
-                        <div class="flex flex-wrap justify-center gap-4">
-                            <button id="ai-btn" class="bg-teal-500 text-white font-bold py-3 px-6 rounded-full hover:bg-teal-600 transition-all duration-300 text-lg shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center mx-auto">
-                            </button>
-                            <button id="pdf-btn" class="bg-green-600 text-white font-bold py-3 px-6 rounded-full hover:bg-green-700 transition-all duration-300 text-lg shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center mx-auto">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 mr-2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                                결과 PDF로 저장하기
-                            </button>
+                    <div id="ai-coaching-center" class="hidden mt-12">
+                        <h2 class="text-2xl font-bold mb-6 text-center">🤖 AI 코칭 센터 🤖</h2>
+                        <div class="bg-gray-100 p-6 rounded-2xl space-y-8">
+                           
+                            <!-- Feature 1: General Tips -->
+                            <div class="bg-white p-4 rounded-lg shadow-sm">
+                                <h3 class="font-bold text-lg mb-2">맞춤형 성장 꿀팁</h3>
+                                <p class="text-sm text-gray-600 mb-4">나의 강점을 활용할 수 있는 수업 방식, 대인관계, 학습법 등에 대한 AI의 조언을 확인해보세요.</p>
+                                <button id="ai-btn-tips" class="w-full bg-teal-500 text-white font-bold py-2 px-4 rounded-full hover:bg-teal-600 transition-colors">성장 꿀팁 받기</button>
+                            </div>
+
+                            <!-- Feature 2: Nickname Generator -->
+                            <div class="bg-white p-4 rounded-lg shadow-sm">
+                                <h3 class="font-bold text-lg mb-2">✨ 강점 별명 생성기</h3>
+                                <p class="text-sm text-gray-600 mb-4">나의 성격 강점을 기반으로 AI가 지어주는 멋진 별명을 확인해보세요!</p>
+                                <button id="ai-btn-nickname" class="w-full bg-amber-500 text-white font-bold py-2 px-4 rounded-full hover:bg-amber-600 transition-colors">별명 생성하기</button>
+                            </div>
+
+                            <!-- Feature 3: Problem Solver -->
+                             <div class="bg-white p-4 rounded-lg shadow-sm">
+                                <h3 class="font-bold text-lg mb-2">✨ AI 고민 해결사</h3>
+                                <p class="text-sm text-gray-600 mb-2">해결하고 싶은 고민을 구체적으로 알려주세요. 나의 성격에 맞는 해결책을 AI가 제안해줍니다.</p>
+                                <textarea id="problem-input" class="w-full p-2 border border-gray-300 rounded-md text-sm" rows="3" placeholder="예시) 발표할 때 너무 떨려요. / 친구와 다퉜는데 어떻게 화해해야 할지 모르겠어요."></textarea>
+                                <button id="ai-btn-advice" class="w-full mt-2 bg-rose-500 text-white font-bold py-2 px-4 rounded-full hover:bg-rose-600 transition-colors">조언 구하기</button>
+                            </div>
                         </div>
-                        <div id="ai-result-card" class="hidden mt-6 bg-teal-50/70 backdrop-blur-sm p-6 rounded-xl shadow-md text-left border border-teal-200/50">
+
+                        <!-- AI Result Display -->
+                        <div id="ai-result-card" class="hidden mt-6 bg-blue-50/70 backdrop-blur-sm p-6 rounded-xl shadow-md text-left border border-blue-200/50">
                             <div id="ai-loading" class="flex justify-center items-center">
                                 <div class="loader"></div>
-                                <p id="ai-loading-text" class="ml-4 text-teal-700 font-semibold"></p>
+                                <p id="ai-loading-text" class="ml-4 text-blue-700 font-semibold"></p>
                             </div>
                             <div id="ai-content" class="hidden">
-                                <h3 id="ai-title" class="text-xl font-bold text-teal-800 mb-3 flex items-center"></h3>
+                                <h3 id="ai-title" class="text-xl font-bold text-blue-800 mb-3 flex items-center"></h3>
                                 <div id="ai-tip" class="text-gray-700 whitespace-pre-wrap"></div>
                             </div>
                         </div>
+                    </div>
+                     <div class="text-center mt-8">
+                        <button id="pdf-btn" class="bg-green-600 text-white font-bold py-3 px-6 rounded-full hover:bg-green-700 transition-all duration-300 text-lg shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center mx-auto">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 mr-2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                            분석 결과 PDF로 저장하기
+                        </button>
                     </div>
                 </div>
             </main>
@@ -151,7 +187,7 @@
             <aside class="lg:col-span-1">
                 <div class="bg-white/70 backdrop-blur-sm p-6 rounded-2xl shadow-lg sticky top-8 border border-gray-200/50">
                     <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 mr-2 text-gray-600"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2l.15-.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 mr-2 text-gray-600"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2l.15-.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                         AI 연동 설정
                     </h3>
                     <div class="space-y-4">
@@ -176,15 +212,29 @@
             <p>&copy; 2025 Created by SHINY_PEACE. All rights reserved.</p>
         </footer>
     </div>
+    
+    <!-- Help Modal -->
+    <div id="help-modal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4 opacity-0">
+        <div class="modal-content bg-white rounded-lg shadow-xl p-6 md:p-8 max-w-2xl w-full transform scale-95 opacity-0">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-2xl font-bold text-gray-800">Big 5 요인 핵심 개념</h3>
+                <button id="close-modal-btn" class="text-gray-500 hover:text-gray-800 text-3xl">&times;</button>
+            </div>
+            <div id="modal-content-body" class="space-y-4">
+                <!-- Modal content injected by JS -->
+            </div>
+        </div>
+    </div>
+
 
     <script>
         // --- DATA ---
         const traits = {
-            O: { name: "경험에 대한 개방성 (Openness)", color: "rgba(239, 68, 68, 0.6)" },
-            C: { name: "성실성 (Conscientiousness)", color: "rgba(59, 130, 246, 0.6)" },
-            E: { name: "외향성 (Extraversion)", color: "rgba(245, 158, 11, 0.6)" },
-            A: { name: "친화성 (Agreeableness)", color: "rgba(16, 185, 129, 0.6)" },
-            N: { name: "신경성 (Neuroticism)", color: "rgba(139, 92, 246, 0.6)" }
+            O: { name: "경험에 대한 개방성 (Openness)", desc: "새로운 경험, 아이디어, 상상력, 호기심에 대한 수용성의 정도입니다." },
+            C: { name: "성실성 (Conscientiousness)", desc: "목표 지향적 행동에서 나타나는 자기 통제, 조직화, 책임감의 정도입니다." },
+            E: { name: "외향성 (Extraversion)", desc: "사회적 상호작용과 외부 자극을 추구하며 에너지를 얻는 경향성입니다." },
+            A: { name: "친화성 (Agreeableness)", desc: "타인에 대한 협조적이고 공감적이며 따뜻한 태도의 정도입니다." },
+            N: { name: "신경성 (Neuroticism)", desc: "불안, 우울, 분노와 같은 부정적 정서를 쉽게 경험하는 경향성입니다." }
         };
         
         const teacherInterpretations = {
@@ -236,16 +286,19 @@
         // --- SCRIPT: Application Logic ---
         document.addEventListener('DOMContentLoaded', () => {
             // Elements
-            const roleSelector = document.querySelectorAll('input[name="role"]');
             const slidersContainer = document.getElementById('trait-sliders');
             const analyzeBtn = document.getElementById('analyze-btn');
             const resultSection = document.getElementById('result-section');
+            const analysisContent = document.getElementById('analysis-content');
             const resultTitle = document.getElementById('result-title');
             const keywordSection = document.getElementById('keyword-section');
             const interpretationSection = document.getElementById('interpretation-section');
             const chartCanvas = document.getElementById('result-chart');
-            const aiSection = document.getElementById('ai-section');
-            const aiBtn = document.getElementById('ai-btn');
+            const aiCoachingCenter = document.getElementById('ai-coaching-center');
+            const aiBtnTips = document.getElementById('ai-btn-tips');
+            const aiBtnNickname = document.getElementById('ai-btn-nickname');
+            const aiBtnAdvice = document.getElementById('ai-btn-advice');
+            const problemInput = document.getElementById('problem-input');
             const pdfBtn = document.getElementById('pdf-btn');
             const aiResultCard = document.getElementById('ai-result-card');
             const aiLoading = document.getElementById('ai-loading');
@@ -256,14 +309,16 @@
             const apiKeyInput = document.getElementById('apiKeyInput');
             const apiKeyError = document.getElementById('api-key-error');
             const saveKeyBtn = document.getElementById('save-key-btn');
+            const helpBtn = document.getElementById('help-btn');
+            const helpModal = document.getElementById('help-modal');
+            const closeModalBtn = document.getElementById('close-modal-btn');
+            const modalContentBody = document.getElementById('modal-content-body');
 
             let chartInstance = null;
             let currentScores = {};
 
-            // Load saved API key
             apiKeyInput.value = localStorage.getItem('geminiApiKey') || '';
 
-            // 1. Create sliders
             Object.keys(traits).forEach(key => {
                 slidersContainer.innerHTML += `
                     <div class="trait-slider">
@@ -276,7 +331,6 @@
                 `;
             });
 
-            // 2. Add event listeners
             Object.keys(traits).forEach(key => {
                 document.getElementById(key).addEventListener('input', (e) => {
                     document.getElementById(`${key}-value`).textContent = e.target.value;
@@ -296,7 +350,16 @@
                 displayResults(scores, labels, data);
             });
             
-            aiBtn.addEventListener('click', () => getAITip(currentScores));
+            aiBtnTips.addEventListener('click', () => callGeminiAPI('tips'));
+            aiBtnNickname.addEventListener('click', () => callGeminiAPI('nickname'));
+            aiBtnAdvice.addEventListener('click', () => {
+                if(problemInput.value.trim() === '') {
+                    alert('고민 내용을 입력해주세요.');
+                    return;
+                }
+                callGeminiAPI('advice');
+            });
+
             pdfBtn.addEventListener('click', saveAsPDF);
             
             saveKeyBtn.addEventListener('click', () => {
@@ -315,32 +378,19 @@
                 }
             });
 
-            // 3. Display results function
             function displayResults(scores, labels, data) {
                 const selectedRole = document.querySelector('input[name="role"]:checked').value;
                 const interpretations = selectedRole === 'teacher' ? teacherInterpretations : studentInterpretations;
 
                 resultSection.classList.remove('hidden');
-                aiSection.classList.remove('hidden');
+                aiCoachingCenter.classList.remove('hidden');
                 aiResultCard.classList.add('hidden');
                 aiContent.classList.add('hidden');
                 keywordSection.innerHTML = '';
                 interpretationSection.innerHTML = '';
 
-                const aiIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 mr-2"><path d="M12 8V4H8"></path><rect x="4" y="12" width="16" height="8" rx="2"></rect><path d="M4 14H2"></path><path d="M20 14H22"></path><path d="M15 12V8H9v4"></path></svg>`;
-
-                if (selectedRole === 'teacher') {
-                    resultTitle.textContent = "선생님의 강점 프로필";
-                    aiBtn.innerHTML = `${aiIcon} AI에게 맞춤형 꿀팁 물어보기`;
-                    aiLoadingText.textContent = "AI 교육 컨설턴트가 선생님만을 위한 팁을 만들고 있어요...";
-                    aiTitle.innerHTML = `${aiIcon} AI의 맞춤형 교실 코칭`;
-                } else {
-                    resultTitle.textContent = "나의 강점 프로필";
-                    aiBtn.innerHTML = `${aiIcon} AI에게 맞춤형 성장 꿀팁 물어보기`;
-                    aiLoadingText.textContent = "AI 학습 멘토가 당신만을 위한 팁을 만들고 있어요...";
-                    aiTitle.innerHTML = `${aiIcon} AI의 맞춤형 성장 코칭`;
-                }
-
+                resultTitle.textContent = selectedRole === 'teacher' ? "선생님의 강점 프로필" : "나의 강점 프로필";
+                
                 const prominentTraits = [];
                 Object.keys(scores).forEach(key => {
                     if (scores[key] >= 67) prominentTraits.push({ key, type: 'high' });
@@ -396,41 +446,22 @@
                             r: { 
                                 beginAtZero: true, 
                                 max: 100,
-                                pointLabels: {
-                                    font: {
-                                        size: 14,
-                                        weight: 'bold'
-                                    },
-                                    color: '#374151'
-                                },
-                                grid: {
-                                    color: 'rgba(0, 0, 0, 0.08)'
-                                },
-                                angleLines: {
-                                    color: 'rgba(0, 0, 0, 0.08)'
-                                },
-                                ticks: {
-                                    backdropColor: 'transparent',
-                                    stepSize: 25
-                                }
+                                pointLabels: { font: { size: 14, weight: 'bold' }, color: '#374151' },
+                                grid: { color: 'rgba(0, 0, 0, 0.08)' },
+                                angleLines: { color: 'rgba(0, 0, 0, 0.08)' },
+                                ticks: { backdropColor: 'transparent', stepSize: 25 }
                             } 
                         }, 
-                        plugins: { 
-                            legend: { display: false } 
-                        } 
+                        plugins: { legend: { display: false } } 
                     }
                 });
             }
             
-            // 4. AI Tip Generation Function
-            async function getAITip(scores) {
+            async function callGeminiAPI(type) {
                 const userApiKey = (localStorage.getItem('geminiApiKey') || '').trim();
-                
                 if (!userApiKey) {
                     apiKeyError.textContent = 'AI 기능을 사용하려면 API 키를 입력하고 저장해주세요.';
                     apiKeyError.classList.add('text-red-500');
-                    apiKeyError.classList.remove('text-green-600');
-                    apiKeyInput.focus();
                     return;
                 }
                 apiKeyError.textContent = '';
@@ -442,23 +473,34 @@
                 aiResultCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
                 const selectedRole = document.querySelector('input[name="role"]:checked').value;
-                
-                let prompt;
-                if (selectedRole === 'teacher') {
-                    prompt = `You are an expert educational consultant with a warm and empathetic tone. A teacher from Korea has the following Big Five personality scores: 
-                    - Openness: ${scores.O}, Conscientiousness: ${scores.C}, Extraversion: ${scores.E}, Agreeableness: ${scores.A}, Neuroticism: ${scores.N}
-                    Based on this unique profile, provide two separate, practical, and highly personalized ideas. 
-                    1. **Classroom Teaching Method:** Suggest a specific teaching method that leverages their strengths.
-                    2. **Interpersonal Relationships:** Suggest a way to improve relationships with students or colleagues.
-                    The response must be in Korean. Frame it as a warm, personal coaching message. Use markdown for clear formatting (e.g., use '###' for each idea's heading).`;
-                } else { // student
-                    prompt = `You are an expert student mentor with a warm and encouraging tone. A student from Korea has the following Big Five personality scores: 
-                    - Openness: ${scores.O}, Conscientiousness: ${scores.C}, Extraversion: ${scores.E}, Agreeableness: ${scores.A}, Neuroticism: ${scores.N}
-                    Based on this unique profile, provide two separate, practical, and highly personalized ideas. 
-                    1. **Effective Learning Method:** Suggest a specific study method that leverages their strengths.
-                    2. **Interpersonal Relationships:** Suggest a way to improve relationships with friends or teachers.
-                    The response must be in Korean. Frame it as a warm, personal coaching message. Use markdown for clear formatting (e.g., use '###' for each idea's heading).`;
+                const roleText = selectedRole === 'teacher' ? '선생님' : '학생';
+                let prompt = '';
+                let loadingText = '';
+                let titleText = '';
+
+                const scoresText = `Openness: ${currentScores.O}, Conscientiousness: ${currentScores.C}, Extraversion: ${currentScores.E}, Agreeableness: ${currentScores.A}, Neuroticism: ${currentScores.N}`;
+
+                switch(type) {
+                    case 'tips':
+                        loadingText = `AI 교육 컨설턴트가 ${roleText}을 위한 맞춤 팁을 만들고 있어요...`;
+                        titleText = `✨ 맞춤형 성장 꿀팁`;
+                        prompt = `You are an expert educational consultant. A ${selectedRole} from Korea has these Big Five scores: ${scoresText}. Provide two separate, practical ideas. 1. A method for them to leverage their strengths (in teaching or learning). 2. A method for them to improve interpersonal relationships. The response must be in Korean. Use markdown for formatting.`;
+                        break;
+                    case 'nickname':
+                        loadingText = 'AI 카피라이터가 멋진 별명을 만들고 있어요...';
+                        titleText = '✨ 강점 별명 생성기';
+                        prompt = `You are a creative copywriter. A ${selectedRole} from Korea has these Big Five scores: ${scoresText}. Based on their most prominent strengths, generate 3 creative and encouraging nicknames. For each, provide a short, one-sentence explanation. The response must be in Korean. Format as a list.`;
+                        break;
+                    case 'advice':
+                        const problem = problemInput.value;
+                        loadingText = 'AI 상담사가 고민을 분석하고 있어요...';
+                        titleText = '✨ AI 고민 해결사';
+                        prompt = `You are an expert empathetic counselor. A ${selectedRole} from Korea has this personality profile: ${scoresText}. They are facing this problem: "${problem}". Provide a concrete, step-by-step action plan to solve this problem, based on their specific personality strengths. The response must be in Korean. Frame it as a supportive coaching message.`;
+                        break;
                 }
+
+                aiLoadingText.textContent = loadingText;
+                aiTitle.textContent = titleText;
 
                 try {
                     const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
@@ -475,68 +517,74 @@
                     let tipText;
                     if (response.ok && result.candidates?.[0]?.content?.parts?.[0]?.text) {
                         tipText = result.candidates[0].content.parts[0].text;
-                        // Basic markdown to HTML conversion
-                        tipText = tipText.replace(/### (.*)/g, '<h4>$1</h4>').replace(/\* (.*)/g, '<li>$1</li>').replace(/(\r\n|\n|\r)/gm, "<br>");
+                        tipText = tipText.replace(/### (.*)/g, '<h4>$1</h4>').replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/\* (.*)/g, '<li>$1</li>').replace(/(\r\n|\n|\r)/gm, "<br>");
                     } else {
-                        tipText = `오류가 발생했습니다. (HTTP ${response.status})\nAPI 키가 유효한지, 또는 사용량이 초과되지 않았는지 확인해주세요.`;
-                        console.error("API Error:", result);
+                        tipText = `오류가 발생했습니다. (HTTP ${response.status})\nAPI 키가 유효한지 확인해주세요.`;
                     }
                     aiTip.innerHTML = tipText;
 
                 } catch (error) {
-                    console.error("Error fetching AI tip:", error);
-                    aiTip.textContent = "AI 팁을 불러오는 중 네트워크 오류가 발생했습니다. 인터넷 연결을 확인하고 다시 시도해주세요.";
+                    aiTip.textContent = "AI 팁을 불러오는 중 네트워크 오류가 발생했습니다.";
                 } finally {
                     aiLoading.style.display = 'none';
                     aiContent.classList.remove('hidden');
                 }
             }
 
-            // 5. Save as PDF function
             async function saveAsPDF() {
-                const resultElement = document.getElementById('result-section');
-                
-                // Temporarily make buttons invisible for capture
-                const buttonsToHide = resultElement.querySelectorAll('button');
-                buttonsToHide.forEach(btn => btn.style.visibility = 'hidden');
-
-                const canvas = await html2canvas(resultElement, {
-                    scale: 2, // Improve resolution
-                    useCORS: true,
-                    backgroundColor: '#f0f4ff' // Match body background
-                });
-
-                // Make buttons visible again
-                buttonsToHide.forEach(btn => btn.style.visibility = 'visible');
-
-                const imgData = canvas.toDataURL('image/png');
+                const resultElement = document.getElementById('analysis-content');
                 const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF({
-                    orientation: 'p',
-                    unit: 'mm',
-                    format: 'a4'
-                });
-
+                const canvas = await html2canvas(resultElement, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+                const imgData = canvas.toDataURL('image/png');
+                
+                const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
                 const imgProps = pdf.getImageProperties(imgData);
                 const pdfWidth = pdf.internal.pageSize.getWidth();
                 const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
                 
-                let heightLeft = pdfHeight;
-                let position = 0;
-                const pageHeight = pdf.internal.pageSize.getHeight();
-
-                pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
-                heightLeft -= pageHeight;
-
-                while (heightLeft > 0) {
-                    position = heightLeft - pdfHeight;
-                    pdf.addPage();
-                    pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
-                    heightLeft -= pageHeight;
-                }
-                
+                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
                 pdf.save('My_Big5_Report.pdf');
             }
+
+            function setupHelpModal() {
+                let modalHTML = '';
+                Object.keys(traits).forEach(key => {
+                    const trait = traits[key];
+                    modalHTML += `
+                        <div class="border-b pb-3 mb-3 last:border-b-0 last:mb-0">
+                            <h4 class="font-bold text-lg text-indigo-700">${trait.name}</h4>
+                            <p class="text-gray-600 text-sm">${trait.desc}</p>
+                        </div>
+                    `;
+                });
+                modalContentBody.innerHTML = modalHTML;
+
+                const modalContent = helpModal.querySelector('.modal-content');
+                helpBtn.addEventListener('click', () => {
+                    helpModal.classList.remove('hidden');
+                    setTimeout(() => {
+                        helpModal.classList.remove('opacity-0');
+                        modalContent.classList.remove('scale-95', 'opacity-0');
+                    }, 10);
+                });
+
+                const closeModal = () => {
+                    modalContent.classList.add('scale-95', 'opacity-0');
+                    helpModal.classList.add('opacity-0');
+                    setTimeout(() => {
+                        helpModal.classList.add('hidden');
+                    }, 300);
+                };
+
+                closeModalBtn.addEventListener('click', closeModal);
+                helpModal.addEventListener('click', (e) => {
+                    if (e.target === helpModal) {
+                        closeModal();
+                    }
+                });
+            }
+            
+            setupHelpModal();
         });
     </script>
 </body>
