@@ -6,6 +6,8 @@
     <title>선생님과 학생을 위한 Big 5 강점 코칭 AI</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -62,6 +64,17 @@
             border-color: #4f46e5;
             box-shadow: 0 4px 14px 0 rgba(79, 70, 229, 0.3);
         }
+        #ai-tip h4 {
+            font-size: 1.125rem; /* text-lg */
+            font-weight: 700; /* font-bold */
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            color: #1e3a8a; /* blue-900 */
+        }
+        #ai-tip ul {
+            list-style-type: disc;
+            padding-left: 1.5rem;
+        }
     </style>
 </head>
 <body class="bg-gradient-custom text-gray-800">
@@ -111,9 +124,15 @@
                     </div>
                     <div id="interpretation-section" class="mt-10 space-y-6"></div>
                     
-                    <div id="ai-section" class="hidden text-center mt-12">
-                        <button id="ai-btn" class="bg-teal-500 text-white font-bold py-3 px-8 rounded-full hover:bg-teal-600 transition-all duration-300 text-lg shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center mx-auto">
-                        </button>
+                    <div id="ai-section" class="hidden mt-12">
+                        <div class="flex flex-wrap justify-center gap-4">
+                            <button id="ai-btn" class="bg-teal-500 text-white font-bold py-3 px-6 rounded-full hover:bg-teal-600 transition-all duration-300 text-lg shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center mx-auto">
+                            </button>
+                            <button id="pdf-btn" class="bg-green-600 text-white font-bold py-3 px-6 rounded-full hover:bg-green-700 transition-all duration-300 text-lg shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center mx-auto">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 mr-2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                                결과 PDF로 저장하기
+                            </button>
+                        </div>
                         <div id="ai-result-card" class="hidden mt-6 bg-teal-50/70 backdrop-blur-sm p-6 rounded-xl shadow-md text-left border border-teal-200/50">
                             <div id="ai-loading" class="flex justify-center items-center">
                                 <div class="loader"></div>
@@ -121,7 +140,7 @@
                             </div>
                             <div id="ai-content" class="hidden">
                                 <h3 id="ai-title" class="text-xl font-bold text-teal-800 mb-3 flex items-center"></h3>
-                                <p id="ai-tip" class="text-gray-700 whitespace-pre-wrap"></p>
+                                <div id="ai-tip" class="text-gray-700 whitespace-pre-wrap"></div>
                             </div>
                         </div>
                     </div>
@@ -227,6 +246,7 @@
             const chartCanvas = document.getElementById('result-chart');
             const aiSection = document.getElementById('ai-section');
             const aiBtn = document.getElementById('ai-btn');
+            const pdfBtn = document.getElementById('pdf-btn');
             const aiResultCard = document.getElementById('ai-result-card');
             const aiLoading = document.getElementById('ai-loading');
             const aiLoadingText = document.getElementById('ai-loading-text');
@@ -277,6 +297,7 @@
             });
             
             aiBtn.addEventListener('click', () => getAITip(currentScores));
+            pdfBtn.addEventListener('click', saveAsPDF);
             
             saveKeyBtn.addEventListener('click', () => {
                 const key = apiKeyInput.value.trim();
@@ -310,7 +331,7 @@
 
                 if (selectedRole === 'teacher') {
                     resultTitle.textContent = "선생님의 강점 프로필";
-                    aiBtn.innerHTML = `${aiIcon} AI에게 맞춤형 교실 꿀팁 물어보기`;
+                    aiBtn.innerHTML = `${aiIcon} AI에게 맞춤형 꿀팁 물어보기`;
                     aiLoadingText.textContent = "AI 교육 컨설턴트가 선생님만을 위한 팁을 만들고 있어요...";
                     aiTitle.innerHTML = `${aiIcon} AI의 맞춤형 교실 코칭`;
                 } else {
@@ -426,11 +447,17 @@
                 if (selectedRole === 'teacher') {
                     prompt = `You are an expert educational consultant with a warm and empathetic tone. A teacher from Korea has the following Big Five personality scores: 
                     - Openness: ${scores.O}, Conscientiousness: ${scores.C}, Extraversion: ${scores.E}, Agreeableness: ${scores.A}, Neuroticism: ${scores.N}
-                    Based on this unique profile, provide one creative, practical, and highly personalized classroom tip. The tip should help the teacher leverage their specific strengths and feel empowered. The response must be in Korean. Frame it as a warm, personal coaching message directly to the teacher. Start with a short, encouraging sentence recognizing their strengths, and then present the tip.`;
+                    Based on this unique profile, provide two separate, practical, and highly personalized ideas. 
+                    1. **Classroom Teaching Method:** Suggest a specific teaching method that leverages their strengths.
+                    2. **Interpersonal Relationships:** Suggest a way to improve relationships with students or colleagues.
+                    The response must be in Korean. Frame it as a warm, personal coaching message. Use markdown for clear formatting (e.g., use '###' for each idea's heading).`;
                 } else { // student
                     prompt = `You are an expert student mentor with a warm and encouraging tone. A student from Korea has the following Big Five personality scores: 
                     - Openness: ${scores.O}, Conscientiousness: ${scores.C}, Extraversion: ${scores.E}, Agreeableness: ${scores.A}, Neuroticism: ${scores.N}
-                    Based on this unique profile, provide one creative, practical, and highly personalized tip for their school life (e.g., study methods, making friends, future career paths). The tip should help the student leverage their specific strengths and feel confident. The response must be in Korean. Frame it as a warm, personal coaching message directly to the student. Start with a short, encouraging sentence recognizing their strengths, and then present the tip.`;
+                    Based on this unique profile, provide two separate, practical, and highly personalized ideas. 
+                    1. **Effective Learning Method:** Suggest a specific study method that leverages their strengths.
+                    2. **Interpersonal Relationships:** Suggest a way to improve relationships with friends or teachers.
+                    The response must be in Korean. Frame it as a warm, personal coaching message. Use markdown for clear formatting (e.g., use '###' for each idea's heading).`;
                 }
 
                 try {
@@ -448,11 +475,13 @@
                     let tipText;
                     if (response.ok && result.candidates?.[0]?.content?.parts?.[0]?.text) {
                         tipText = result.candidates[0].content.parts[0].text;
+                        // Basic markdown to HTML conversion
+                        tipText = tipText.replace(/### (.*)/g, '<h4>$1</h4>').replace(/\* (.*)/g, '<li>$1</li>').replace(/(\r\n|\n|\r)/gm, "<br>");
                     } else {
                         tipText = `오류가 발생했습니다. (HTTP ${response.status})\nAPI 키가 유효한지, 또는 사용량이 초과되지 않았는지 확인해주세요.`;
                         console.error("API Error:", result);
                     }
-                    aiTip.textContent = tipText;
+                    aiTip.innerHTML = tipText;
 
                 } catch (error) {
                     console.error("Error fetching AI tip:", error);
@@ -461,6 +490,52 @@
                     aiLoading.style.display = 'none';
                     aiContent.classList.remove('hidden');
                 }
+            }
+
+            // 5. Save as PDF function
+            async function saveAsPDF() {
+                const resultElement = document.getElementById('result-section');
+                
+                // Temporarily make buttons invisible for capture
+                const buttonsToHide = resultElement.querySelectorAll('button');
+                buttonsToHide.forEach(btn => btn.style.visibility = 'hidden');
+
+                const canvas = await html2canvas(resultElement, {
+                    scale: 2, // Improve resolution
+                    useCORS: true,
+                    backgroundColor: '#f0f4ff' // Match body background
+                });
+
+                // Make buttons visible again
+                buttonsToHide.forEach(btn => btn.style.visibility = 'visible');
+
+                const imgData = canvas.toDataURL('image/png');
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({
+                    orientation: 'p',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+
+                const imgProps = pdf.getImageProperties(imgData);
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+                
+                let heightLeft = pdfHeight;
+                let position = 0;
+                const pageHeight = pdf.internal.pageSize.getHeight();
+
+                pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+                heightLeft -= pageHeight;
+
+                while (heightLeft > 0) {
+                    position = heightLeft - pdfHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+                    heightLeft -= pageHeight;
+                }
+                
+                pdf.save('My_Big5_Report.pdf');
             }
         });
     </script>
